@@ -19,18 +19,25 @@ export default function ViewBookedCars() {
   }, [agencyId]);
 
   return (
-    <div className='mt-14'>
-      <h1>Booked Cars</h1>
+    <div className='mt-24'>
+      <h1 className='text-4xl text-center mb-10'>Booked Cars</h1>
       <ul>
         {bookedCars.map((car) => (
           <li key={car._id}>
-            <p>Vehicle Model: {car.vehicalModel}</p>
-            <p>Vehicle Number: {car.vehicalNumber}</p>
-            <p>Seating Capacity: {car.seatingCapacity}</p>
-            <p>Rent Per Day: {car.rentPerDay}</p>
-            <p>User: {car.rentUserName}</p>
-            <p>Email: {car.rentUserEmail}</p>
-            <p>Phone: {car.rentUserPhone}</p>
+            <div className="bg-slate-300 flex flex-row py-5 px-8 justify-self-center gap-6">
+              <div className='flex flex-col'>
+                <p>Vehicle Model: {car.vehicalModel}</p>
+                <p>Vehicle Number: {car.vehicalNumber}</p>
+                <p>Seating Capacity: {car.seatingCapacity}</p>
+                <p>Rent Per Day: {car.rentPerDay}</p>
+              </div>
+              <div className='flex flex-col'>
+                <p>User: {car.rentUserName}</p>
+                <p>Email: {car.rentUserEmail}</p>
+                <p>Phone: {car.rentUserPhone}</p>
+              </div>
+            </div>
+            <hr className='border-b-0 mt-2' />
           </li>
         ))}
       </ul>
