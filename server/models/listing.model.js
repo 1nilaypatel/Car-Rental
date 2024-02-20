@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 
-const agencySchema = new mongoose.Schema({
+const listingSchema = new mongoose.Schema({
   vehicalModel:{
+    type: String,
+  },
+  agency:{
     type: String,
   },
   vehicalNumber:{
@@ -19,16 +22,26 @@ const agencySchema = new mongoose.Schema({
   capturedStartDate: {
     type: Date,
   },
-  vehicleImg:{
+  booked:{
     type: String,
-    default: "https://drive.google.com/file/d/1PZh85O285OKBL-njimuOXf50REtCqbT-/view?usp=sharing",
+    default: "No",
+    enum: ['Yes', 'No'],
+  },
+  rentUserName:{
+    type: String,
+  },
+  rentUserEmail:{
+    type: String,
+  },
+  rentUserPhone:{
+    type: Number,
   },
   userRef:{
     type: String,
   },
 }, {timestamps: true});
 
-const Agency = mongoose.model('Agency', agencySchema);
+const Listing = mongoose.model('Listing', listingSchema);
 
-export default Agency; 
+export default Listing; 
 

@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice.js';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -14,31 +17,33 @@ export default function SignIn() {
     });
   };
 
+  useEffect(() => {
+    dispatch(signInFailure(null));
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
     }
-    // try {
-    //   setLoading(true);
-    //   const response = await axios.post('/server/auth/signup', formData, {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   });
-    //   const data = response.data;
-    //   if (data.success === false) {
-    //     setLoading(false);
-    //     setError(data.message);
-    //     return;
-    //   }
-    //   setLoading(false);
-    //   setError(null);
-    //   navigate('/');
-    // } catch (error) {
-    //   setLoading(false);
-    //   setError(error.response.data.message);
-    // }
+    try {
+      dispatch(signInStart());
+      const response = await axios.post('/server/auth/signin', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = response.data;
+      if (data.success === false) {
+        dispatch(signInFailure(data.message));
+        return;
+      }
+      dispatch(signInSuccess(data));
+      if(data.customerType === "User") navigate('/');
+      else navigate(`/view-booked-cars/${data._id}`);
+    } catch (error) {
+      dispatch(signInFailure(error.response.data.message));
+    }
   };
 
   const validateForm = () => {
@@ -47,11 +52,11 @@ export default function SignIn() {
       formData.password === "" ||
       formData.customerType === ""
     ) {
-      setError("All fields are required.");
+      dispatch(signInFailure("All fields are required."));
       return false;
     }
 
-    setError(null);
+    dispatch(signInFailure(null));
     return true;
   };
 
@@ -79,10 +84,10 @@ export default function SignIn() {
             onChange={handleChange}
           />
           <select
-            id='status'
+            id='customerType'
             className='border focus:outline-indigo-300 p-2'
             required
-            value={''}
+            value={formData.customerType || ''}
             onChange={handleChange}
           >
             <option value='' disabled hidden>Specify Yourself</option>
@@ -95,7 +100,7 @@ export default function SignIn() {
           disabled={loading || error}
           className="p-3 bg-indigo-300 border hover:border-indigo-300 hover:bg-white  hover:text-indigo-500 disabled:bg-opacity-40"
         >
-          {loading ? "Loading..." : "Register my Agency"}
+          {loading ? "Loading..." : "Log in"}
         </button>
       </div>
       {error && <p className='text-red-600 mt-3'>{error}</p>}

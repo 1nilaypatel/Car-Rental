@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CarForm from '../components/CarForm.jsx';
+import { useSelector } from 'react-redux';
 
 export default function UpdateListing() {
+  const { listingId } = useParams();
+  const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -13,7 +15,26 @@ export default function UpdateListing() {
     vehicalNumber: "",
     seatingCapacity: "",
     rentPerDay: "",
+    userRef: currentUser._id,
+    agency: currentUser.username,
   });
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/server/listing/get/${listingId}`);
+        const data = response.data;
+        setFormData(data);
+        setLoading(false);
+      } catch (error) {
+        setError("Error fetching listing details");
+        setLoading(false);
+      }
+    };
+
+    fetchListing();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -27,28 +48,20 @@ export default function UpdateListing() {
     if (!validateForm()) {
       return;
     }
-    // try{
-    //   setLoading(true);
-    //   setError(false);
-    //   const response = await axios.post("/server/listing/create", formData, {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   });
-    //   setLoading(false);
-    //   if(response.data.success === false){
-    //     setError(response.data.message);
-    //   } else {
-    //     navigate(`/book-list`);
-    //   }
-    // } catch(error){
-    //   if (error.response) {
-    //     setError(error.response.data.message);
-    //   } else {
-    //     setError("Network error. Please try again.");
-    //   }
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      setError(false);
+      const response = await axios.put(`/server/listing/update/${listingId}`, formData);
+      setLoading(false);
+      if (response.data.success === false) {
+        setError(response.data.message);
+      } else {
+        navigate(`/`);
+      }
+    } catch (error) {
+      setError(error.response.data.message);
+      setLoading(false);
+    }
   };
 
   const validateForm = () => {
@@ -73,12 +86,11 @@ export default function UpdateListing() {
         formData={formData} 
         handleChange={handleChange} 
         handleSubmit={handleSubmit}
-        uploading={uploading}
       />
       <div className='mt-10 text-center'>
         <button 
           onClick={handleSubmit}
-          disabled={loading || uploading} 
+          disabled={loading} 
           className="p-3 bg-indigo-300 border hover:border-indigo-300 hover:bg-white  hover:text-indigo-500 disabled:bg-opacity-40"
         >
           {loading ? "Updating..." : "Update"}

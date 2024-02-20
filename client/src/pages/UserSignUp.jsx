@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
@@ -19,26 +20,26 @@ export default function UserSignUp() {
     if (!validateForm()) {
       return;
     }
-    // try {
-    //   setLoading(true);
-    //   const response = await axios.post('/server/auth/signup', formData, {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   });
-    //   const data = response.data;
-    //   if (data.success === false) {
-    //     setLoading(false);
-    //     setError(data.message);
-    //     return;
-    //   }
-    //   setLoading(false);
-    //   setError(null);
-    //   navigate('/');
-    // } catch (error) {
-    //   setLoading(false);
-    //   setError(error.response.data.message);
-    // }
+    try {
+      setLoading(true);
+      const response = await axios.post('/server/auth/userSignup', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = response.data;
+      if (data.success === false) {
+        setLoading(false);
+        setError(data.message);
+        return;
+      }
+      setLoading(false);
+      setError(null);
+      navigate('/sign-in');
+    } catch (error) {
+      setLoading(false);
+      setError(error.response.data.message);
+    }
   };
 
   const validateForm = () => {
