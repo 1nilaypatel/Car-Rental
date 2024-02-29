@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { signOutUserStart, signOutUserSuccess, signOutUserFailure } from '../redux/user/userSlice.js';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useState } from 'react';
 
 export default function CarListing({ car }) {
-  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const defaultFormData = {
     vehicalModel: car.vehicalModel,
@@ -26,25 +24,9 @@ export default function CarListing({ car }) {
     rentUserPhone: currentUser.phone,
   } : defaultFormData);
 
-  const handleSignOut = async () => {
-    try {
-      dispatch(signOutUserStart());
-      const response = await axios.post('/server/auth/signout');
-      const data = response.data;
-      if (response.data.success === false) {
-        dispatch(signOutUserFailure(response.data.message));
-        return;
-      }
-      dispatch(signOutUserSuccess(response.data));
-    } catch (error) {
-      dispatch(signOutUserFailure(error.message));
-    }
-  }
-
   const handleRent = async () => {
     try {
       const response = await axios.post(`/server/listing/rent/${car._id}`, formData);
-      handleSignOut();
       alert("Car rented successfully!");
       window.location.reload(true);
     } catch (error) {
